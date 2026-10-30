@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ARCA">
+<link rel="manifest" href="manifest.webmanifest">
+<title>ARCA Investimentos</title>
+<style>
+:root{--bg:#0b1220;--panel:#131e30;--panel2:#1a2940;--line:#29384e;--txt:#f4f7fb;--muted:#9eacc0;--orange:#f45b08;--blue:#4385e8;--yellow:#f5d45b;--purple:#8b45b5;--green:#4dbb83;--red:#f07878}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:88px}
+header{padding:22px 18px 15px;background:linear-gradient(135deg,#17263d,#0b1220);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:40px;height:40px;border-radius:12px;background:var(--orange);display:grid;place-items:center;font-weight:900;font-size:23px;color:white}.brand h1{font-size:18px;margin:0}.brand small{color:var(--muted)}
+main{max-width:760px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}.section-title{font-size:18px;margin:8px 0 13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:13px}.eyebrow{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}.big{font-size:30px;font-weight:750;margin:6px 0}.muted{color:var(--muted)}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{padding:13px}.mini strong{font-size:19px;display:block;margin-top:6px}
+.quad{border-left:5px solid var(--q);padding:12px 13px;background:var(--panel);border-radius:11px;margin:9px 0}.quad-head{display:flex;justify-content:space-between;gap:8px;font-weight:650}.bar{height:8px;background:#273449;border-radius:20px;overflow:hidden;margin:10px 0 5px}.bar span{display:block;height:100%;background:var(--q);border-radius:20px}.sub{font-size:12px;color:var(--muted)}
+button,.btn{border:0;border-radius:11px;padding:11px 14px;background:var(--orange);color:white;font-weight:700;font-size:14px;cursor:pointer}.btn-secondary{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}.btn-danger{background:#512b35;color:#ffc5c5}.actions{display:flex;gap:8px;flex-wrap:wrap}
+nav{position:fixed;bottom:0;left:0;right:0;background:#111c2d;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:10}
+nav button{background:transparent;color:var(--muted);padding:7px 4px;min-width:64px;font-size:11px}nav button.active{color:#fff}nav span{display:block;font-size:19px;margin-bottom:3px}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,select{width:100%;background:#0d1727;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px;outline:none}input:focus,select:focus{border-color:var(--blue)}
+form{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}form .full{grid-column:1/-1}form button{margin-top:14px}
+.list-item{padding:12px 0;border-bottom:1px solid var(--line)}.list-item:last-child{border:0}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#26364c;color:#d6e4f5}.empty{text-align:center;padding:25px;color:var(--muted)}
+.notice{font-size:12px;color:var(--muted);line-height:1.5}.right{text-align:right}.hidden{display:none!important}
+@media(min-width:650px){main{padding:24px}.grid{gap:14px}.card{padding:19px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">A</div><div><h1>ARCA Investimentos</h1><small>Seu patrimônio, organizado em quatro quadrantes</small></div></div></header>
+<main>
+<section id="dashboard" class="page active">
+  <div class="card">
+    <div class="eyebrow">Patrimônio investido — carteira ARCA</div>
+    <div class="big" id="totalPatrimonio">R$ 0,00</div>
+    <div class="row"><span class="muted sub">Valor de mercado dos ativos cadastrados</span><span class="pill" id="ativosCount">0 ativos</span></div>
+  </div>
+  <h2 class="section-title">Distribuição dos quadrantes</h2>
+  <div id="quadDashboard"></div>
+  <div class="card">
+    <div class="row"><div><div class="eyebrow">Reserva de emergência</div><div class="big" id="reservaSaldo">R$ 0,00</div></div><span class="pill">Fora da ARCA</span></div>
+    <div class="bar"><span id="reservaBar" style="width:0;background:var(--green)"></span></div>
+    <div class="row"><span class="sub" id="reservaPct">0% da meta</span><span class="sub" id="reservaMeta">Meta: R$ 30.000,00</span></div>
+  </div>
+  <div class="actions"><button onclick="showPage('movimentos')">＋ Registrar movimentação</button><button class="btn-secondary" onclick="showPage('carteira')">Ver carteira</button></div>
+</section>
+
+<section id="carteira" class="page">
+  <h2 class="section-title">Carteira de investimentos</h2>
+  <div class="card">
+    <form id="assetForm">
+      <div class="full"><label>Nome do ativo / investimento</label><input id="assetName" required placeholder="Ex.: ALOS3, Tesouro 2027, Bitcoin"></div>
+      <div><label>Quadrante</label><select id="assetQuad"><option value="acoes">Ações e Negócios</option><option value="realestate">Real Estate</option><option value="caixa">Caixa</option><option value="internacionais">Ativos Internacionais</option></select></div>
+      <div><label>Tipo</label><select id="assetType"><option>Ação</option><option>FII</option><option>Renda fixa</option><option>Criptomoeda</option><option>ETF</option><option>Dinheiro / saldo</option><option>Outro</option></select></div>
+      <div class="full"><button type="submit">Adicionar ativo</button></div>
+    </form>
+  </div>
+  <div id="assetList" class="card"></div>
+  <p class="notice">Cadastre cada ativo uma única vez. Quantidade, custo e preço médio serão atualizados pelas movimentações. A cotação pode ser informada manualmente nesta primeira versão.</p>
+</section>
+
+<section id="movimentos" class="page">
+  <h2 class="section-title">Registrar movimentação</h2>
+  <div class="card">
+    <form id="txForm">
+      <div><label>Operação</label><select id="txType"><option value="compra">Compra / aporte</option><option value="venda">Venda / retirada</option></select></div>
+      <div><label>Data</label><input id="txDate" type="date" required></div>
+      <div class="full"><label>Ativo</label><select id="txAsset" required></select></div>
+      <div><label>Quantidade</label><input id="txQty" type="number" step="0.00000001" min="0" required placeholder="Ex.: 2"></div>
+      <div><label>Preço unitário (R$)</label><input id="txPrice" type="number" step="0.00000001" min="0" required placeholder="Ex.: 25,00"></div>
+      <div class="full"><label>Custos / taxas (R$)</label><input id="txFees" type="number" step="0.01" min="0" value="0"></div>
+      <div class="full"><label>Observação (opcional)</label><input id="txNote" placeholder="Ex.: aporte mensal"></div>
+      <div class="full"><button type="submit">Salvar movimentação</button></div>
+    </form>
+  </div>
+  <h3 class="section-title">Histórico</h3><div class="card" id="txList"></div>
+</section>
+
+<section id="reserva" class="page">
+  <h2 class="section-title">Reserva de emergência</h2>
+  <div class="card">
+    <div class="eyebrow">Saldo atual</div><div class="big" id="reservaSaldo2">R$ 0,00</div>
+    <div class="bar"><span id="reservaBar2" style="width:0;background:var(--green)"></span></div>
+    <div class="row"><span class="sub" id="reservaPct2">0% da meta</span><span class="sub" id="reservaMeta2">Meta: R$ 30.000,00</span></div>
+  </div>
+  <div class="card">
+    <form id="reserveForm">
+      <div class="full"><label>Meta da reserva (R$)</label><input id="reserveGoal" type="number" min="0" step="0.01" value="30000"></div>
+      <div><label>Movimentação</label><select id="reserveType"><option value="aporte">Aporte</option><option value="retirada">Retirada</option></select></div>
+      <div><label>Valor (R$)</label><input id="reserveAmount" type="number" min="0.01" step="0.01" required></div>
+      <div class="full"><label>Data</label><input id="reserveDate" type="date" required></div>
+      <div class="full"><label>Descrição (opcional)</label><input id="reserveNote" placeholder="Ex.: transferência para reserva"></div>
+      <div class="full actions"><button type="submit">Registrar</button><button class="btn-secondary" type="button" onclick="saveGoal()">Salvar meta</button></div>
+    </form>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Histórico da reserva</h3><div id="reserveList"></div></div>
+</section>
+
+<section id="config" class="page">
+  <h2 class="section-title">Configurações e dados</h2>
+  <div class="card">
+    <div class="eyebrow">Metas dos quadrantes</div>
+    <p class="notice">A meta inicial é de 25% para cada quadrante. Nesta versão, ela é fixa e será configurável numa próxima etapa.</p>
+    <div class="eyebrow">Armazenamento</div><p class="notice">Os dados desta versão ficam salvos neste dispositivo e navegador. Ainda não há sincronização em nuvem; vamos implementar o Supabase depois de validar o funcionamento e os cálculos.</p>
+    <div class="actions"><button class="btn-secondary" onclick="exportData()">Exportar backup JSON</button><button class="btn-secondary" onclick="document.getElementById('importFile').click()">Importar backup</button><input id="importFile" class="hidden" type="file" accept="application/json"></div>
+  </div>
+  <div class="card"><div class="eyebrow">Aviso</div><p class="notice">Os valores e cotações são informativos e dependem dos dados inseridos. Esta ferramenta não executa ordens nem substitui extratos das instituições financeiras.</p></div>
+</section>
+</main>
+<nav>
+<button class="active" data-page="dashboard" onclick="showPage('dashboard')"><span>◫</span>Resumo</button>
+<button data-page="carteira" onclick="showPage('carteira')"><span>▤</span>Carteira</button>
+<button data-page="movimentos" onclick="showPage('movimentos')"><span>↔</span>Movimentos</button>
+<button data-page="reserva" onclick="showPage('reserva')"><span>◉</span>Reserva</button>
+<button data-page="config" onclick="showPage('config')"><span>⚙</span>Dados</button>
+</nav>
+<script>
+const KEY='arcaInvestimentosV1';
+const QUADS=[
+ {id:'acoes',name:'Ações e Negócios',color:'var(--orange)'},
+ {id:'realestate',name:'Real Estate',color:'var(--blue)'},
+ {id:'caixa',name:'Caixa',color:'var(--yellow)'},
+ {id:'internacionais',name:'Ativos Internacionais',color:'var(--purple)'}
+];
+const today=()=>new Date().toISOString().slice(0,10);
+let data=load();
+function fresh(){return {assets:[],transactions:[],reserve:{goal:30000,transactions:[]}}}
+function load(){try{return {...fresh(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){return fresh()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function money(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function num(v){return Number(v)||0}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));render()}
+function assetStats(a){
+ let tx=data.transactions.filter(t=>t.assetId===a.id).sort((x,y)=>x.date.localeCompare(y.date));
+ let qty=0,cost=0;
+ for(const t of tx){let q=num(t.qty),p=num(t.price),f=num(t.fees);
+  if(t.type==='compra'){qty+=q;cost+=q*p+f}
+  else if(t.type==='venda'){let avg=qty?cost/qty:0;qty-=q;cost-=avg*q;if(qty<1e-10){qty=0;cost=0}}
+ }
+ let current=num(a.quote)|| (qty?cost/qty:0);
+ return {qty,cost,avg:qty?cost/qty:0,current,value:qty*current};
+}
+function reserveBalance(){return data.reserve.transactions.reduce((s,t)=>s+(t.type==='aporte'?num(t.amount):-num(t.amount)),0)}
+function renderDashboard(){
+ let stats=data.assets.map(a=>({a,...assetStats(a)}));
+ let total=stats.reduce((s,x)=>s+x.value,0);
+ document.getElementById('totalPatrimonio').textContent=money(total);
+ document.getElementById('ativosCount').textContent=stats.filter(x=>x.qty>0).length+' ativos';
+ document.getElementById('quadDashboard').innerHTML=QUADS.map(q=>{
+  let val=stats.filter(x=>x.a.quad===q.id).reduce((s,x)=>s+x.value,0),pct=total?val/total*100:0;
+  let diff=pct-25;
+  return `<div class="quad" style="--q:${q.color}"><div class="quad-head"><span>${q.name}</span><span>${pct.toLocaleString('pt-BR',{maximumFractionDigits:2})}%</span></div><div class="bar"><span style="width:${Math.min(100,pct)}%"></span></div><div class="row sub"><span>${money(val)}</span><span>${diff>=0?'+':''}${diff.toLocaleString('pt-BR',{maximumFractionDigits:2})} p.p. vs. meta</span></div></div>`
+ }).join('');
+ let r=reserveBalance(),g=num(data.reserve.goal),p=g?r/g*100:0;
+ ['reservaSaldo','reservaSaldo2'].forEach(id=>document.getElementById(id).textContent=money(r));
+ ['reservaPct','reservaPct2'].forEach(id=>document.getElementById(id).textContent=p.toLocaleString('pt-BR',{maximumFractionDigits:1})+'% da meta');
+ ['reservaMeta','reservaMeta2'].forEach(id=>document.getElementById(id).textContent='Meta: '+money(g));
+ ['reservaBar','reservaBar2'].forEach(id=>document.getElementById(id).style.width=Math.max(0,Math.min(100,p))+'%');
+}
+function renderAssets(){
+ document.getElementById('assetList').innerHTML=data.assets.length?data.assets.map(a=>{let s=assetStats(a);return `<div class="list-item"><div class="row"><strong>${esc(a.name)}</strong><span class="pill">${esc(a.type)}</span></div><div class="row sub"><span>${a.quad==='reserva'?'Reserva de emergência':QUADS.find(q=>q.id===a.quad)?.name||'—'}</span><span>${s.qty.toLocaleString('pt-BR',{maximumFractionDigits:8})} un.</span></div><div class="row" style="margin-top:7px"><span class="sub">Preço médio ${money(s.avg)}</span><strong>${money(s.value)}</strong></div><label>Preço atual unitário (R$)</label><div class="row"><input aria-label="Cotação atual" type="number" min="0" step="0.00000001" value="${a.quote??''}" placeholder="Informe a cotação" onchange="updateQuote('${a.id}',this.value)"><button class="btn-danger" onclick="deleteAsset('${a.id}')">Excluir</button></div></div>`}).join(''):'<div class="empty">Nenhum ativo cadastrado ainda. Adicione seu primeiro investimento acima.</div>';
+ let sel=document.getElementById('txAsset');sel.innerHTML=data.assets.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
+}
+function renderTransactions(){
+ let items=[...data.transactions].sort((a,b)=>b.date.localeCompare(a.date));
+ document.getElementById('txList').innerHTML=items.length?items.map(t=>{let a=data.assets.find(x=>x.id===t.assetId);return `<div class="list-item"><div class="row"><strong>${esc(a?.name||'Ativo removido')}</strong><span class="pill">${t.type==='compra'?'Compra':'Venda'}</span></div><div class="row sub"><span>${t.date.split('-').reverse().join('/')}${t.note?' · '+esc(t.note):''}</span><span>${money(num(t.qty)*num(t.price))}</span></div><div class="row sub"><span>${num(t.qty).toLocaleString('pt-BR',{maximumFractionDigits:8})} × ${money(t.price)}</span><button class="btn-danger" onclick="deleteTx('${t.id}')">Excluir</button></div></div>`}).join(''):'<div class="empty">As compras, vendas e rendimentos aparecerão aqui.</div>';
+ document.getElementById('reserveList').innerHTML=data.reserve.transactions.length?[...data.reserve.transactions].sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`<div class="list-item row"><div><strong>${t.type==='aporte'?'Aporte':'Retirada'}</strong><div class="sub">${t.date.split('-').reverse().join('/')}${t.note?' · '+esc(t.note):''}</div></div><strong>${t.type==='aporte'?'+':'−'} ${money(t.amount)}</strong></div>`).join(''):'<div class="empty">Nenhuma movimentação na reserva.</div>';
+}
+function render(){renderDashboard();renderAssets();renderTransactions();document.getElementById('reserveGoal').value=data.reserve.goal}
+function updateQuote(id,v){let a=data.assets.find(x=>x.id===id);if(a){a.quote=num(v);save()}}
+function deleteAsset(id){if(!confirm('Excluir este ativo e seu histórico de movimentações?'))return;data.assets=data.assets.filter(a=>a.id!==id);data.transactions=data.transactions.filter(t=>t.assetId!==id);save()}
+function deleteTx(id){if(!confirm('Excluir esta movimentação?'))return;data.transactions=data.transactions.filter(t=>t.id!==id);save()}
+document.getElementById('assetForm').addEventListener('submit',e=>{e.preventDefault();let name=document.getElementById('assetName').value.trim();if(!name)return;data.assets.push({id:crypto.randomUUID(),name,quad:document.getElementById('assetQuad').value,type:document.getElementById('assetType').value,quote:null});e.target.reset();save()});
+document.getElementById('txForm').addEventListener('submit',e=>{e.preventDefault();let assetId=document.getElementById('txAsset').value;if(!assetId){alert('Cadastre um ativo primeiro.');return}let type=document.getElementById('txType').value,qty=num(document.getElementById('txQty').value),price=num(document.getElementById('txPrice').value);let st=assetStats(data.assets.find(a=>a.id===assetId));if(type==='venda'&&qty>st.qty){alert('A quantidade vendida não pode ser maior que a posição atual.');return}data.transactions.push({id:crypto.randomUUID(),assetId,type,date:document.getElementById('txDate').value,qty,price,fees:num(document.getElementById('txFees').value),note:document.getElementById('txNote').value});e.target.reset();document.getElementById('txDate').value=today();document.getElementById('txFees').value='0';save()});
+function saveGoal(){data.reserve.goal=num(document.getElementById('reserveGoal').value);save();alert('Meta da reserva salva.')}
+document.getElementById('reserveForm').addEventListener('submit',e=>{e.preventDefault();let type=document.getElementById('reserveType').value,amount=num(document.getElementById('reserveAmount').value);if(type==='retirada'&&amount>reserveBalance()){alert('A retirada não pode superar o saldo da reserva.');return}data.reserve.transactions.push({id:crypto.randomUUID(),type,amount,date:document.getElementById('reserveDate').value,note:document.getElementById('reserveNote').value});e.target.reset();document.getElementById('reserveDate').value=today();save()});
+function exportData(){let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='arca-investimentos-backup-'+today()+'.json';a.click();URL.revokeObjectURL(url)}
+document.getElementById('importFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.assets)||!Array.isArray(d.transactions)||!d.reserve)throw Error();if(confirm('Importar backup e substituir os dados atuais?')){data=d;save();alert('Backup importado.')}}catch(err){alert('Arquivo de backup inválido.')}e.target.value=''});
+document.getElementById('txDate').value=today();document.getElementById('reserveDate').value=today();render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
